@@ -19,9 +19,13 @@ Can also be specified without the a e.g. `sudo ./rkd` or `sudo apt-get rkd` (eit
 ### ASUS Republic of Gamers ROG [RKDΛ]: https://youtu.be/jm1obhFRpdU @8s vs @9s
 ![ROG](https://github.com/TheMindVirus/RKDA/blob/main/ROG-Age-Of-Gamers.jpg)
 ```diff
-- [WARN]: <<<<<<< UPDATED UPSTREAM <<<<<<< 
+- [WARN]: <<<<<<< [_UPDATED_UPSTREAM_] <<<<<<< 
 ```
 ![RKDΛ](https://github.com/TheMindVirus/RKDA/blob/main/RKDΛ_CRPT.PNG)
 ```diff
-- [INFO]: >>>>>>> STASHED CHANGES >>>>>>> 
+- [INFO]: >>>>>>> [_STASHED_CHANGES_] >>>>>>> 
+```
+![RKDΛ](https://github.com/TheMindVirus/RKDA/blob/main/RKDΛ_FLΛT.PNG)
+```diff
+- [FΛTL]: !!!!!!! [_END_OF_STREAM_] !!!!!!!
 ```
