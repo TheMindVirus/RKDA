@@ -1,0 +1,13 @@
+<?php $addr = gethostbyname($_SERVER["__FILE__"]);
+$files = scandir(".");
+echo "<style>";
+echo "* { background: black; font-family: sans-serif; font-size: 20pt; }";
+echo "</style>";
+foreach($files as $key => $file)
+{
+    if ((is_dir($file)) && ($file != ".") && ($file != ".."))
+    {
+        echo '<a href="' . $file . '">' . $file . '</a></br>';
+    }
+}
+exit; ?>
