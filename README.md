@@ -12,6 +12,6 @@ load time: virtually instant (500ms)
 Synonymous with: 3D Website, Gaming Platform, Virtual Arcade, Metaverse, Multiverse etc...
 In Context: Intel ARC [RKDΛ] or Valve [RKDΛ] ? or SONY [RKDΛ]  or Someone's [RKDΛ]
 ```
-Can be specified without braces e.g. `RKDΛ-Server` (or rkda-server for repository specific packages) \
+Can be specified without braces e.g. `RKDΛ-Server` (or `rkda-server` for repository specific packages) \
 Can also be specified without the a e.g. `sudo ./rkd` or `sudo apt-get rkd` (either pronounced arcade or wrecked) \
 ASUS Republic of Gamers' [RKDΛ]: https://youtu.be/jm1obhFRpdU
