@@ -18,4 +18,4 @@ Can be specified without braces e.g. `RKDΛ-Server` (or `rkda-server` for reposi
 Can also be specified without the a e.g. `sudo ./rkd` or `sudo apt-get rkd` (either pronounced arcade or wrecked)
 ### ASUS Republic of Gamers ROG [RKDΛ]: https://youtu.be/jm1obhFRpdU @8s vs @9s
 ![ROG](https://github.com/TheMindVirus/RKDA/blob/main/ROG-Age-Of-Gamers.jpg)
-![RKDΛ](https://github.com/TheMindVirus/RKDA/blob/main/RKDΛ_CRPT.PNG.jpg)
+![RKDΛ](https://github.com/TheMindVirus/RKDA/blob/main/RKDΛ_CRPT.PNG)
