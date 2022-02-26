@@ -9,7 +9,7 @@ Details: Empty shell is 16KB uncompressed, 2.25KB 7-zipped (requires php)
          An alternate version would be roughly the same size in micropython/circuitpython
 Memory usage: 6.8KB web request and 8.4KB memory usage (populated)
 Load time: virtually instant (500ms)
-Synonymous with: 3D Website, Gaming Platform, Virtual Arcade, Metaverse, Multiverse etc...
+Synonymous with: 3D Website, Gaming Platform, Virtual Arcade, Metaverse, Multiverse, Community DLC etc...
 In context: Intel ARC [RKDΛ] or Valve [RKDΛ] ? or SONY [RKDΛ]  or Someone's [RKDΛ]
 Powered by: Unity [RKDΛ] Player
 Better than: NFT's
