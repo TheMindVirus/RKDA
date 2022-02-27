@@ -7,3 +7,4 @@
 ![mangled](https://github.com/themindvirus/rkda/blob/main/LCD/mangled.png)
 ![ninja](https://github.com/themindvirus/rkda/blob/main/LCD/ninja.png)
 ![zen](https://github.com/themindvirus/rkda/blob/main/LCD/zen.png)
+![scarlett](https://github.com/themindvirus/rkda/blob/main/LCD/scarlett.png)
