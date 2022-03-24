@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>RKDΛ_DBUG</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
+    <script src="./Build/Output.loader.js"></script>
+    <script>
+var audio = null;
+var container = null;
+var canvas = null;
+var loadingBar = null;
+var progressBarFull = null;
+var button = null;
+var instance = null;
+
+var sound_engine = null;
+var audio_source = null;
+var level_biquad = [];
+var level_meters = [];
+var levels = [];
+
+var bands = 6;
+var frequencies = null;
+var smooth = 3; //15;
+var gain = 10;
+var calibration = 5;
+var peak_alpha = 0.1;
+var level_alpha = 0.8;
+
+var buildUrl = "Build";
+var loaderUrl = buildUrl + "/Output.loader.js";
+var config =
+{
+    dataUrl: buildUrl + "/Output.data.unityweb",
+    frameworkUrl: buildUrl + "/Output.framework.js.unityweb",
+    codeUrl: buildUrl + "/Output.wasm.unityweb",
+    streamingAssetsUrl: "StreamingAssets",
+    companyName: "TheMindVirus",
+    productName: "RKDA_DBUG",
+    productVersion: "1.0",
+};
+
+window.onload = function()
+{
+    audio = document.getElementsByTagName("audio")[0];
+    container = document.querySelector("#unity-container");
+    canvas = document.querySelector("#unity-canvas");
+    loadingBar = document.querySelector("#unity-loading-bar");
+    progressBarFull = document.querySelector("#unity-progress-bar-full");
+    button = document.querySelector("#unity-play-button");
+}
+
+var play = async function()
+{
+    audio.src = "bug_hunt_loop.wav";
+    audio.loop = true;
+
+    sound_engine = new window.AudioContext();
+    await sound_engine.audioWorklet.addModule("./LevelMeter.js");
+    audio_source = sound_engine.createMediaElementSource(audio);
+    audio_source.connect(sound_engine.destination);
+    level_biquad = new Array(bands);
+    level_meters = new Array(bands);
+    levels = new Array(bands);
+    frequencies = new Array(bands);
+    for (var i = 0; i < bands; ++i)
+    {
+        var e = Math.pow(((i + 1) / bands), 2);
+        frequencies[i] = e * (((i + 1) / bands) * 20000);
+        level_biquad[i] = sound_engine.createBiquadFilter();
+        level_biquad[i].type = "bandpass";
+        level_biquad[i].frequency.setValueAtTime(frequencies[i], sound_engine.currentTime);
+        level_biquad[i].gain.setValueAtTime(gain, sound_engine.currentTime);
+        audio_source.connect(level_biquad[i]);
+        level_meters[i] = new AudioWorkletNode(sound_engine, "LevelMeter");
+        level_meters[i].parameters.get("id").setValueAtTime(i, sound_engine.currentTime);
+        level_meters[i].port.onmessage = message;
+        level_biquad[i].connect(level_meters[i]);
+        levels[i] = [[0.0, 0.0], [new Float32Array(smooth), new Float32Array(smooth)]];
+    }
+    setTimeout(() => { audio.play(); setInterval(() => { update(); }, 0); }, 5000);
+    button.remove();
+
+    canvas.style.width = "100vw";
+    canvas.style.height = "100vh";
+    canvas.ondragstart = function(event) { event.preventDefault(); }
+
+    loadingBar.style.display = "block";
+
+    createUnityInstance(canvas, config, (progress) =>
+    {
+        progressBarFull.style.width = 100 * progress + "%";
+    }).then((unityInstance) =>
+    {
+        instance = unityInstance;
+        loadingBar.style.display = "none";
+    }).catch((message) => { alert(message); });
+}
+
+var msg = 0;
+var sum = 0;
+var message = function(event)
+{
+    msg = JSON.parse(event.data);
+    if (msg.origin == "LevelMeter")
+    {
+        for (var i = (smooth - 1); i > 0; --i)
+        {
+            levels[msg.id][1][msg.ch][i] = levels[msg.id][1][msg.ch][i - 1];
+        }
+        levels[msg.id][1][msg.ch][0] = msg.value;
+        sum = 0;
+        for (var i = (smooth - 1); i >= 0; --i)
+        {
+            sum += levels[msg.id][1][msg.ch][i];
+        }
+        levels[msg.id][0][msg.ch] = sum / smooth;
+    }
+}
+
+var update = function()
+{
+    instance.SendMessage("MixerPanel2022", "SetBacklight", ((levels[0][0][0] * 4.0) - 2.5).toString());
+    var data = "";
+    for (var i = 0; i < bands; ++i)
+    {
+        for (var j = 0; j < 16; ++j) { data += (((levels[i][0][0] * 2.0) / j > 0.1) ? 1.0 : 0.0).toString() + ", "; }
+    }
+    instance.SendMessage("MixerPanel2022", "SetLED", data);
+}
+    </script>
+    <style>
+      * { box-sizing: border-box; margin: auto; text-align: center; overflow: hidden; font-family: consolas; color: white; }
+      body { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background-color: black; }
+      #unity-play-button { position: fixed; top: 0; left: 0; width: 100%; height: 100%; text-align: center; color: red; background: black; border: none; font-size: 50pt; user-select: none; z-index: 9999; }
+      .webgl-content { position: absolute; top: 0 left: 0; width: 100%; height: 100%; text-shadow: 1px 1px 10px white; }
+      .unityContainer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+      .footer { position: absolute; top: 0; width: 100%; height: 30px; background-color: cyan; box-shadow: 1px 1px 10px black; opacity: 0.5; }
+      .webgl-logo { position: relative; top: 0; left: 0; background-color: white; z-index: 9999; }
+      .fullscreen { position: relative; top: 0; right: 0; }
+      .title { position: relative; bottom: 0; font-weight: bold; }
+    </style>
+  </head>
+  <body>
+    <audio></audio>
+    <button id="unity-play-button" onclick="play();">Play</button>
+    <div id="unity-container" class="unity-desktop">
+      <canvas id="unity-canvas" width="100%" height="100%">Connect a gamepad to look around</canvas>
+      <div id="unity-loading-bar">
+        <div id="unity-logo"></div>
+        <div id="unity-progress-bar-empty">
+          <div id="unity-progress-bar-full"></div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
