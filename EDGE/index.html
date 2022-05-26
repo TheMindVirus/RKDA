@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>RoG EDGE</title>
+        <script>
+var pos1 = 0, pos2 = 0, pos3 = 0, pos4, w, h, t = 0;
+var search, element, content = null;
+
+window.onload=()=>
+{
+    search = document.querySelector(".search");
+    element = document.getElementsByClassName("window")[0];
+    element.getElementsByClassName("header")[0].onmousedown = ondragstart;
+    content = document.getElementById("content");
+}
+
+var ondragstart=(event)=>
+{
+    event.preventDefault();
+    pos3 = event.clientX;
+    pos4 = event.clientY;
+    document.onmousemove = ondragmove;
+    document.onmouseup = ondragstop;
+}
+
+var ondragmove=(event)=>
+{
+    event.preventDefault();
+    pos1 = pos3 - event.clientX;
+    pos2 = pos4 - event.clientY;
+    pos3 = event.clientX;
+    pos4 = event.clientY;
+    element.style.top = (element.offsetTop - pos2) + "px";
+    element.style.left = (element.offsetLeft - pos1) + "px";
+}
+
+var ondragstop=()=>
+{
+    document.onmousemove = null;
+    document.onmouseup = null;
+}
+
+var opacity=()=>
+{
+    if (content.style.opacity == 0.5) { content.style.opacity = 1.0; }
+    else { content.style.opacity = 0.5; }
+}
+
+var home=()=> { content.src = ""; }
+var go=()=> { content.src = search.value; }
+var go2=(event)=> { if (event.key == "Enter") { go(); } }
+var back=()=> { content.contentWindow.history.go(-1); search.value = content.contentWindow.location.href; }
+var forward=()=> { content.contentWindow.history.go(1); search.value = content.contentWindow.location.href; }
+
+var minify=()=> { console.log("[WARN]: Not Implemented"); }
+var closer=()=> { console.log("[WARN]: Not Implemented"); }
+
+        </script>
+        <style>
+          * { box-sizing: border-box; margin: auto; text-align: center; font-family: sans-serif; overflow: hidden; font-weight: bold; font-style: italic; color: white; }
+          body { background: url("./Wallpaper.png") no-repeat center center fixed; background-size: cover; height: 100%; }
+          .taskbar { background: #000000DD; position: fixed; bottom: 0; left: 0; width: 100vw; height: 50px; box-shadow: 0 0 15px #000000AF; z-index: 9999; }
+          .start { pointer-events: none; user-select: none; width: 50px; height: 50px; }
+          .window { background: #0900007F; position: absolute; top: 100px; left: 100px; width: 640px; height: 480px; box-shadow: 0 0 15px #FF0033FF, inset 0 0 15px #FF0033FF; border: 1px #FFAAFFFF solid; backdrop-filter: blur(5px); }
+          .header { background: #00000000; position: relative; width: 100%; height: 35px; z-index: 9998; cursor: grab; }
+          .icon { position: absolute; top: 8px; left: 8px; width: 20px; height: 20px; cursor: pointer; z-index: 9999; }
+          .back { position: absolute; top: 10px; left: 40px; color: #FF0033FF; cursor: pointer; z-index: 9999; }
+          .forward { position: absolute; top: 10px; left: 60px; color: #FF0033FF; cursor: pointer; z-index: 9999; }
+          .title { position: relative; width: 100%; height: 100%; padding: 10px; font-weight: bold; user-select: none; }
+          .minify { position: absolute; top: 7px; right: 55px; width: 30px; height: 30px; color: #FF0033FF; cursor: pointer; z-index: 9999; }
+          .opacity { position: absolute; top: 7px; right: 30px; width: 30px; height: 30px; color: #FF0033FF; cursor: pointer; z-index: 9999; }
+          .close { position: absolute; top: 10px; right: 5px; width: 30px; height: 30px; color: #FF0033FF; cursor: pointer; z-index: 9999; }
+          .search { position: absolute; left: 0; width: 85%; height: 25px; background: #000000DD; border: thin #FFAAFFFF solid; box-shadow: 0 0 10px #FF0033FF, inset 0 0 10px #FF0033FF; z-index: 9999;  }
+          .search:focus { outline: none; }
+          .go { position: absolute; right: 0; width: 15%; height: 25px; background: #000000DD; border: thin #FFAAFFFF solid; box-shadow: 0 0 10px #FF0033FF, inset 0 0 10px #FF0033FF; cursor: pointer; }
+          .go:active { color: #CCCCCCCC; }
+          #content { position: absolute; top: 60px; left: 0; width: 100%; height: calc(100% - 58px); border: none; opacity: 0.6; }
+        </style>
+    </head>
+    <body>
+        <div class="taskbar">
+            <img class="start" src="./Start.png" alt=""></img>
+        </div>
+        <div class="window">
+            <div class="header">
+                <img class="icon" src="./Start.png" alt="" onclick="home();"></img>
+                <p class="back" onclick="back();">&lt;</p>
+                <p class="forward" onclick="forward();">&gt;</p>
+                <p class="title">[RoG EDGE]</p>
+                <p class="minify" onclick="minify();">_</p>
+                <p class="opacity" onclick="opacity();">☰</p>
+                <p class="close" onclick="closer();">X</p>
+            </div>
+            <input class="search" type="text" onkeypress="go2(event);"></input>
+            <button class="go" onclick="go();">//SEARCH//</button>
+            <iframe id="content"></iframe>
+        </div>
+    </body>
+</html>
