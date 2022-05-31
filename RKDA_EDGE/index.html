@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>RKDA_EDGE</title>
+        <script src="https://www.youtube.com/iframe_api"></script>
+        <script>
+var pos1 = 0, pos2 = 0, pos3 = 0, pos4, w, h, t = 0;
+var dragElement, DeckA, DeckB, XFader, MIDI = null;
+
+var windowList = [];
+
+window.onload=()=> //!!!BUG: Application doesn't load pending wallpaper download completion which is a barbaric default to have
+{
+    elements = document.getElementsByClassName("Deck");
+    for (var i = 0; i < elements.length; ++i)
+    {
+        elements[i].getElementsByClassName("header")[0].onmousedown = ondragstart;
+    }
+    content = document.getElementById("content");
+
+    register(null, document.querySelector("#DeckA"));
+    register(null, document.querySelector("#DeckB"));
+    register(null, document.querySelector("#XFader"));
+    movetotop(null, windowList[windowList.length - 1]);
+    console.log(windowList); //!!!BUG: Z-Index is not updated when a background window is clicked
+
+    DeckA = document.querySelector("#DeckA > .content");
+    DeckB = document.querySelector("#DeckB > .content");
+    XFader = document.querySelector("#fader");
+    DeckA = load(null, DeckA, "gT8rCf8p528");
+    DeckB = load(null, DeckB, "obJ0drerpdc");
+
+    document.body.style.background = 'url("./Wallpaper.png") no-repeat center center fixed black';
+    document.body.style.backgroundSize = "cover";
+
+/*  //Automation Test
+    setTimeout(() => { reset(null, document.querySelector('#DeckA')); }, 3000);
+
+    setTimeout(() =>
+    {
+        DeckA = document.querySelector("#DeckA > .content");
+        DeckA = load(null, DeckA, "obJ0drerpdc");
+    }, 6000);
+*/
+
+    if (navigator.requestMIDIAccess) { navigator.requestMIDIAccess({ sysex: true }).then(MIDIsetup, MIDIerror); }
+    else { console.log("[WARN]: Error Initialising WebMIDI"); }
+}
+
+var load=(event, element, vid)=>
+{
+    done = false; console.log(vid);
+    element = new YT.Player(element, { height: 390, width: 640, videoId: vid,
+        playerVars: { "playsinline": 1 }, events: { "onReady": onReadyPlayer1, "onStateChange": onReadyPlayer1StateChange }});
+    return element;
+}
+
+var onReadyPlayer1=(event)=>
+{
+    console.log("[INFO]: ReadyPlayer1");
+    //event.target.playVideo();
+}
+var done = false;
+var onReadyPlayer1StateChange=(event)=>
+{
+    console.log("[INFO]: ReadyPlayer1StateChange");
+    if (event.data == YT.PlayerState.PLAYING && !done)
+    {
+        //setTimeout(() => { DeckA.stopVideo(); }, 6000); //TODO: Remove this
+        if (DeckA.id == 1) { DeckA.setVolume(Math.max(Math.min((100 - XFader.value) * 2, 100), 0)); } //!!!BUG: Player does not start at the intended volume
+        if (DeckB.id == 1) { DeckB.setVolume(Math.max(Math.min(XFader.value * 2, 100), 0)); } //!!!BUG: Loaders for both Decks are tied together and need to be isolated
+        done = true; //!!!BUG: DeckB doesn't change volume if DeckA isn't loaded
+    }
+}
+
+var register=(event, element)=>
+{
+    element.onclick = () => { movetotop(null, element); };
+    windowList.push(element);
+}
+var movetotop=(event, element)=> //!!!BUG: Z-Index is not properly maintained by any html window system and id's aren't unique enough
+{
+    var pos = windowList.findIndex((e) => { if (e && element) { return e == element; } return false; });
+    if (pos < 0) { console.log("[WARN]: Null Window Detected"); return; }
+    windowList.splice(pos, 1);
+    windowList.push(element);
+    for (var i = 0; i < windowList.length; ++i) { if (windowList[i] != null) { windowList[i].style.zIndex = i; } }
+    console.log(windowList);
+}
+
+var ondragstart=(event)=> //!!!BUG: Window dragging for DeckB and XFader has a warped offset and generally doesn't work properly
+{
+    event.preventDefault();
+    dragElement = event.target.parentElement;
+    if (dragElement != null) { dragElement = dragElement.parentElement; }
+    movetotop(null, dragElement);
+
+    pos3 = event.clientX;
+    pos4 = event.clientY;
+    document.onmousemove = ondragmove;
+    document.onmouseup = ondragstop;
+}
+
+var ondragmove=(event)=>
+{
+    event.preventDefault();
+    if (dragElement == null) { return; }
+    pos1 = pos3 - event.clientX;
+    pos2 = pos4 - event.clientY;
+    pos3 = event.clientX;
+    pos4 = event.clientY;
+    dragElement.style.top = (dragElement.offsetTop - pos2) + "px";
+    dragElement.style.left = (dragElement.offsetLeft - pos1) + "px";
+}
+
+var ondragstop=()=>
+{
+    document.onmousemove = null;
+    document.onmouseup = null;
+    dragElement = null;
+}
+
+var extract=(link)=> //!!!BUG: Full Link preferences discarded and not taken into account
+{
+    if (!link) { return ""; }
+    var vid = link;
+    vid = vid.split("=");
+    if (vid.length > 1) { vid = vid[1].split("&")[0]; }
+    else { vid = link.split("/"); if (vid.length > 3) { vid = vid[3].split("?")[0]; console.log("[INFO]: Link Type 2: " + vid); } else { vid = link; } }
+    console.log(vid);
+    return vid;
+}
+
+var reset=(event, element)=> //!!!BUG: Resetting the element removes the in-memory version of embedlink
+{
+    console.log(element);
+    resetElement = document.querySelector("#" + element.id + " > .content");
+    if (resetElement) { resetElement.remove(); }
+    resetElement = element;
+    resetElement.innerHTML += '<div class="content"></div>';
+    if (element.id == "DeckA") { DeckA = resetElement; }
+    if (element.id == "DeckB") { DeckB = resetElement; }
+    return resetElement;
+}
+var embed=(event, element)=> //!!!BUG: DeckB resets both Decks and loads into DeckA only without command...???
+{
+    var embedlink = element.querySelector(".embedlink");
+    var embedlinkvalue = embedlink.value;
+    console.log(embedlinkvalue);
+    var resetElement = reset(null, element);
+    resetElement = load(event, element.querySelector(".content"), extract(embedlinkvalue));
+    if (element.id == "DeckA") { DeckA = resetElement; }
+    if (element.id == "DeckB") { DeckB = resetElement; }
+}
+var keypress=(event, element)=> { if (event.key == "Enter") { embed(event, element); } }
+
+var fader=(event, element)=>
+{
+    //document.title = element.value;
+    if (done)
+    {
+        DeckA.setVolume(Math.max(Math.min((100 - element.value) * 2, 100), 0));
+        DeckB.setVolume(Math.max(Math.min(element.value * 2, 100), 0));
+    } else { console.log("[WARN]: Not Ready"); }
+}
+
+var MIDIsetup=(handle)=>
+{
+    if (MIDI != null)
+    {
+        var inputs = midi.inputs.values();
+        for (var input = inputs.next(); input && !input.done; input = inputs.next())
+        {
+            input.value.onmidimessage = null;
+        }
+    }
+    MIDI = handle;
+    MIDI.onstatechange = MIDIstate;
+    var inputs = MIDI.inputs.values();
+    for (var input = inputs.next(); input && !input.done; input = inputs.next())
+    {
+        input.value.onmidimessage = MIDIevent;
+    }
+}
+
+var MIDIstate=(state)=> { console.log("[INFO]: " + state.port.name + " " + state.port.state); }
+var MIDIerror=(error)=> { console.log("[WARN]: " + error); }
+var MIDIevent=(event)=>
+{
+    console.log("[MIDI]: " + event.data);
+    if ((event.data[0] == 176) && (event.data[1] == 1)) { XFader.value = event.data[2] * (100 / 127); fader(null, XFader); }
+}
+        </script>
+        <style>
+          * { box-sizing: border-box; margin: auto; text-align: center; font-family: sans-serif; overflow: hidden; font-weight: bold; font-style: italic; color: white; }
+          /*body { background: url("./Wallpaper.png") no-repeat center center fixed; background-size: cover; background-color: black; height: 100%; }*/
+          body { background-color: black; height: 100%; }
+          .taskbar { background: #000000DD; position: fixed; bottom: 0; left: 0; width: 100vw; height: 50px; box-shadow: 0 0 15px #000000AF; z-index: 9999; }
+          .start { pointer-events: none; user-select: none; width: 50px; height: 50px; }
+          .Deck { background: #0900007F; position: absolute; top: 100px; left: 100px; width: 640px; height: 480px; box-shadow: 0 0 15px #FF0020FF, inset 0 0 15px #FF0020FF; border: 1px #FFAAFFFF solid; backdrop-filter: blur(5px); user-select: none; }
+          .Deck > .header { background: #00000000; position: relative; width: 100%; height: 35px; cursor: grab; }
+          .Deck > .header > .icon { position: absolute; top: 8px; left: 8px; width: 20px; height: 20px; cursor: pointer; }
+          .Deck > .header > .title { position: relative; width: 100%; height: 100%; padding: 10px; font-weight: bold; user-select: none; }
+          .Deck > .header > .close { position: absolute; top: 10px; right: 5px; width: 30px; height: 30px; color: #FF0033FF; cursor: pointer; }
+          .Deck > .embedlink { position: absolute; left: 0; width: 85%; height: 25px; background: #000000DD; border: thin #FFAAFFFF solid; box-shadow: 0 0 10px #FF0020FF, inset 0 0 10px #FF0020FF; }
+          .Deck > .embedlink:focus { outline: none; }
+          .Deck > .embed { position: absolute; right: 0; width: 15%; height: 25px; background: #000000DD; border: thin #FFAAFFFF solid; box-shadow: 0 0 10px #FF0020FF, inset 0 0 10px #FF0020FF; cursor: pointer; }
+          .Deck > .embed:active { color: #CCCCCCCC; }
+          .Deck > .content { position: absolute; top: 60px; left: 0; width: 100%; height: calc(100% - 58px); border: none; opacity: 0.5; filter: saturate(150%); }
+          /*#DeckB { left: inherit; right: 100px; }*/
+          #DeckB { left: calc(100% - 100px - 640px); }
+          /*#XFader { width: 300px; height: 100px; top: inherit; bottom: 100px; left: calc(50% - 150px); }*/
+          #XFader { width: 300px; height: 100px; top: inherit; top: calc(100% - 100px - 100px); left: calc(50% - 150px); }
+          #XFader > .content > #fader { width: 100%; }
+        </style>
+    </head>
+    <body>
+        <div class="taskbar">
+            <img class="start" src="./Start.png" alt=""></img>
+        </div>
+        <div id="DeckA" class="Deck">
+            <div class="header">
+                <img class="icon" src="./Start.png" alt="" onclick="reset(event, document.querySelector('#DeckA'));"></img>
+                <p class="title">[RKDA_EDGE DECK_A]</p>
+                <p class="close" onclick="reset(event, document.querySelector('#DeckA'));">X</p>
+            </div>
+            <input class="embedlink" type="text" onkeypress="keypress(event, document.querySelector('#DeckA'));"></input>
+            <button class="embed" onclick="embed(event, document.querySelector('#DeckA'));">//EMBED//</button>
+            <div class="content"></div>
+        </div>
+        <div id="DeckB" class="Deck">
+            <div class="header">
+                <img class="icon" src="./Start.png" alt="" onclick="reset(event, document.querySelector('#DeckB'));"></img>
+                <p class="title">[RKDA_EDGE DECK_B]</p>
+                <p class="close" onclick="reset(event, document.querySelector('#DeckB'));">X</p>
+            </div>
+            <input class="embedlink" type="text" onkeypress="keypress(event, document.querySelector('#DeckB'));"></input>
+            <button class="embed" onclick="embed(event, document.querySelector('#DeckB'));">//EMBED//</button>
+            <div class="content"></div>
+        </div>
+        <div id="XFader" class="Deck">
+            <div class="header">
+                <img class="icon" src="./Start.png" alt=""></img>
+                <p class="title">[RKDA_EDGE X-Fader]</p>
+                <p class="close" onclick="reset(event, this);">X</p>
+            </div>
+            <div class="content">
+                <input id="fader" type="range" onmousemove="fader(event, this);"></input>
+            </div>
+        </div>
+    </body>
+</html>
