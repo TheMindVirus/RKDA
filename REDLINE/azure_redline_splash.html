@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Azure Stack Edge Redline</title>
+    <script>
+        var URL = "http://localhost:1880";
+        var content = null;
+        var cover = null;
+        var logo = null;
+        //var block1 = null;
+        //var block2 = null;
+        //var block3 = null;
+        //var block4 = null;
+        var spinner = null;
+        var path = null;
+        var offset1 = 0.0;
+        var offset2 = 0.0;
+        var t = 0;
+        var interval = null;
+        var ready = false;
+
+        window.onload = function()
+        {
+            content = document.getElementById("content");
+            cover = document.getElementById("cover");
+            logo = document.getElementById("logo");
+            //block1 = document.getElementById("block1");
+            //block2 = document.getElementById("block2");
+            //block3 = document.getElementById("block3");
+            //block4 = document.getElementById("block4");
+            spinner = document.getElementById("spinner");
+            ring = document.getElementById("ring");
+            path = document.getElementById("path");
+            
+            content.src = URL;
+
+            logo.style.opacity = 0.0;
+            //block1.style.opacity = 0.0;
+            //block2.style.opacity = 0.0;
+            //block3.style.opacity = 0.0;
+            //block4.style.opacity = 0.0;
+            ring.style.opacity = 0.0;
+            setTimeout(() => { logo.style.transition = "2s"; logo.style.opacity = 1.0; }, 1000);
+            //setTimeout(() => { block1.style.transition = "2s"; block1.style.opacity = 1.0; }, 1000);
+            //setTimeout(() => { block2.style.transition = "2s"; block2.style.opacity = 1.0; }, 1100);
+            //setTimeout(() => { block3.style.transition = "2s"; block3.style.opacity = 1.0; }, 1100);
+            //setTimeout(() => { block4.style.transition = "2s"; block4.style.opacity = 1.0; }, 1200);
+            setTimeout(() => { ring.style.transition = "0.5s"; ring.style.opacity = 1.0; }, 3000);
+            setTimeout(() => { interval = setInterval(() => { setSpinner(); }, 10); }, 4000);
+            setTimeout(() => { cover.style.transition = "2s"; cover.style.opacity = 0.0; }, 8000);
+            setTimeout(() => { ready = true; }, 15000);
+        }
+
+        var setSpinner = function()
+        {
+            var a = (Math.sin(offset1 * 2 * Math.PI) * -100) + 150;
+            var b = (Math.cos(offset1 * 2 * Math.PI) * 100) + 150;
+            var c = (Math.sin(offset2 * 2 * Math.PI) * -100) + 150;
+            var d = (Math.cos(offset2 * 2 * Math.PI) * 100) + 150;
+            var l = (offset1 < 0.5) ? t : 1 - t;
+            var r = 100;
+            path.setAttribute("d", ""
+                 + "M " + (a) + " " + (b) + " "
+                 + "A " + (r) + " " + (r) + " " + (1 - t) + " " + (l) + " " + (1 - t) + " " + (c) + " " + (d)
+            );
+            offset1 += 0.005; if (offset1 >= 1.0) { offset1 = 0.0; }
+            offset2 += 0.010; if (offset2 >= 1.0) { offset2 = 0.0; }
+            if ((offset1 == 0.0) && (offset2 == 0.0)) { t = 1 - t; }
+            if (ready == true) { clearInterval(interval); }
+        }
+    </script>
+  </head>
+  <body>
+    <iframe id="content" style="position: fixed; top: 0px; left:0px; width: 100%; height: 100%; border: none;"></iframe>
+    <div id="cover" style="position: fixed; top: 0px; left: 0px; width: 100%; height: 100%; background: rgba(0, 0, 0, 1.00);">
+      <img id="logo" style="position: fixed; top: calc(50% - 50px - 8px); left: calc(50% - 50px); width: 100px; height: 100px; filter: contrast(50%) saturate(111%) blur(1.5px);" src="./azure_stack_edge_redline.png" alt="redline"></img>
+      <!--
+      <svg id="logo" style="position: fixed; top: calc(50% - 50px); left: calc(50% - 50px); width: 100px; height: 100px;">
+        <rect id="block1" style="x: 0px; y: 0px; width: 49px; height: 49px; fill: rgba(255, 0, 0, 0.5); opacity: 0.0;"></rect>
+        <rect id="block2" style="x: 51px; y: 0px; width: 49px; height: 49px; fill: rgba(255, 0, 0, 0.5); opacity: 0.0;"></rect>
+        <rect id="block3" style="x: 0px; y: 51px; width: 49px; height: 49px; fill: rgba(255, 0, 0, 0.5); opacity: 0.0;"></rect>
+        <rect id="block4" style="x: 51px; y: 51px; width: 49px; height: 49px; fill: rgba(255, 0, 0, 0.5); opacity: 0.0;"></rect>
+      </svg>
+      -->
+      <svg id="spinner" style="position: fixed; top: calc(50% - 150px); left: calc(50% - 150px); width: 300px; height: 300px;">
+        <circle id="ring" style="cx: 150px; cy: 150px; r: 100px; fill: rgba(0, 0, 0, 0.0); stroke-width: 11px; stroke: rgba(255, 255, 255, 0.5); opacity: 0.0;"></circle>
+        <path id="path" style="fill: rgba(0, 0, 0, 0.0); stroke-width: 10px; stroke: rgba(255, 255, 255, 0.8);"></path>
+      </svg>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Azure Stack Edge Redline Mod Ribbon</title>
+    <script>
+        var URL = "http://localhost:1880";
+        var content = null;
+        var cover = null;
+        var logo = null;
+        var spinner = null;
+        var path1 = null;
+        var path2 = null;
+        var offset1 = 0.0;
+        var offset2 = 0.0;
+        var t = 0;
+        var interval = null;
+        var ready = false;
+        var ribbon_x = 1.0;
+
+        window.onload = function()
+        {
+            content = document.getElementById("content");
+            cover = document.getElementById("cover");
+            logo = document.getElementById("logo");
+            spinner = document.getElementById("spinner");
+            ring = document.getElementById("ring");
+            path1 = document.getElementById("path1");
+            path2 = document.getElementById("path2");
+            ribbon = document.getElementById("ribbon");
+            
+            content.src = URL;
+
+            ribbon_x = 1.0;
+            logo.style.opacity = 0.0;
+            ring.style.opacity = 0.0;
+            ribbon.style.fill = "rgba(0.0, 0.0, 0.0, 1.0)";
+            setTimeout(function(){ ribbon.style.transition = "2s"; ribbon.style.fill = "rgba(255, 0, 77, 0.8)"; }, 500);
+            setTimeout(function(){ logo.style.transition = "2s"; logo.style.opacity = 1.0; }, 1000);
+            setTimeout(function(){ ring.style.transition = "0.5s"; ring.style.opacity = 1.0; }, 3000);
+            setTimeout(function(){ interval = setInterval(function(){ setSpinner(); }, 10); }, 4000);
+            setTimeout(function(){ interval = setInterval(function(){ ribbon_x -= 0.002; if (ribbon.x <= 0.0) { ribbon.x = 0.0; clearInterval(interval); } }, 10); }, 4000);
+            setTimeout(function(){ cover.style.transition = "2s"; cover.style.opacity = 0.0; }, 12000);
+            setTimeout(function(){ ready = true; }, 15000);
+            setInterval(setRibbon, 10);
+        }
+
+        var setSpinner = function()
+        {
+            var a = (Math.sin(offset1 * 2 * Math.PI) * -100) + 150;
+            var b = (Math.cos(offset1 * 2 * Math.PI) * 100) + 150;
+            var c = (Math.sin(offset2 * 2 * Math.PI) * -100) + 150;
+            var d = (Math.cos(offset2 * 2 * Math.PI) * 100) + 150;
+            var l = (offset1 < 0.5) ? t : 1 - t;
+            var r = 100;
+            path1.setAttribute("d", ""
+                 + "M " + (a) + " " + (b) + " "
+                 + "A " + (r) + " " + (r) + " " + (1 - t) + " " + (l) + " " + (1 - t) + " " + (c) + " " + (d)
+            );
+            path2.setAttribute("d", ""
+                 + "M " + (a) + " " + (b) + " "
+                 + "A " + (r) + " " + (r) + " " + (1 - t) + " " + (l) + " " + (1 - t) + " " + (c) + " " + (d)
+            );
+            offset1 += 0.005; if (offset1 >= 1.0) { offset1 = 0.0; }
+            offset2 += 0.010; if (offset2 >= 1.0) { offset2 = 0.0; }
+            if ((offset1 == 0.0) && (offset2 == 0.0)) { t = 1 - t; }
+            if (ready == true) { clearInterval(interval); }
+        }
+
+        var setRibbon = function()
+        {
+            var style = window.getComputedStyle(cover);
+            var w = parseFloat(style.width);
+            var h = parseFloat(style.height);
+            var r = 100;
+            ribbon.setAttribute("d", ""
+                 + "M " + (0) + " " + (h - 80) + " "
+                 + "L " + (0) + " " + (h - 100) + " "
+                 + "L " + ((ribbon_x * w)) + " " + (h - 100) + " "
+                 + "L " + ((ribbon_x * w) + 20) + " " + (h - 100) + " "
+                 + "L " + ((ribbon_x * w)) + " " + (h - 80) + " "
+                 + "L " + ((ribbon_x * w) - ((1.0 - ribbon_x) * w * 0.5)) + " " + (ribbon_x * (h - 80)) + " "
+                 + "L " + ((ribbon_x * w) - ((1.0 - ribbon_x) * w * 0.5) + 25) + " " + (ribbon_x * (h - 100)) + " "
+                 + "L " + ((ribbon_x * w) + 20) + " " + (h - 100) + " "
+                 + "L " + (ribbon_x * w) + " " + (h - 80) + " "
+                 + "L " + (0) + " " + (h - 80) + " "
+            );
+        }
+    </script>
+  </head>
+  <body>
+    <iframe id="content" style="position: fixed; top: 0px; left:0px; width: 100%; height: 100%; border: none;"></iframe>
+    <div id="cover" style="position: fixed; top: 0px; left: 0px; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.0);">
+      <svg id="wrap" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%;">
+        <rect id="back1" width="100%" height="calc(100% - 100px)" style="fill: rgba(0, 0, 0, 1.0);"></rect>
+        <rect id="back2" width="100%" height="80" y="calc(100% - 80px)" style="fill: rgba(0, 0, 0, 1.0);"></rect>
+        <path id="ribbon" width="100%" height="20" cy="calc(100% - 80px)" style="fill: rgba(255, 0, 77, 0.8);"></path>
+      </svg>
+      <svg id="logo" style="position: fixed; top: calc(50% - 50px - 8px); left: calc(50% - 50px); width: 1000px; height: 1000px;">
+        <path id="dash1" d="M 0,80 20,30 50,0 25,80 Z" style="fill: rgba(64, 64, 64, 1.0);"></path>
+        <path id="redline" d="M 50,0 54,10 44,45, 40,36 Z" style="fill: rgba(255, 64, 128, 1.0);"></path>
+        <path id="dash2" d="M 55,10 100,100, 20,100, 70,80, 45,45 Z" style="fill: rgba(64, 64, 64, 1.0);"></path>
+      </svg>
+      <svg id="spinner" style="position: fixed; top: calc(50% - 150px); left: calc(50% - 150px); width: 300px; height: 300px;">
+        <filter id="glow"><fegaussianblur class="blur" stddeviation="5"></fegaussianblur></filter>
+        <circle id="ring" style="cx: 150px; cy: 150px; r: 100px; fill: rgba(0, 0, 0, 0.0); stroke-width: 2px; stroke: rgba(255, 0, 64, 0.8); filter: url(#glow); opacity: 0.0;"></circle>
+        <path id="path1" style="fill: rgba(0, 0, 0, 0.0); stroke-width: 7px; stroke: rgba(255, 0, 100, 0.8); filter: url(#glow);"></path>
+        <path id="path2" style="fill: rgba(0, 0, 0, 0.0); stroke-width: 2px; stroke: rgba(255, 180, 255, 0.8);"></path>
+      </svg>
+    </div>
+  </body>
+</html>

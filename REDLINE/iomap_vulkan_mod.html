@@ -1,0 +1,409 @@
+<title>iomap_vulkan</title>
+<script>
+
+w = 0;
+h = 0;
+pos1 = 0;
+pos2 = 0;
+pos3 = 0;
+pos4 = 0;
+
+canvas = null;
+ctx = null;
+
+render_scale = 4.0;
+render_blur = 0.5 / render_scale;
+
+line_width = 2.0;
+line_blur = 10.0;
+
+max_height = 1500;
+drag_element = null;
+div_img = "data:image/png;base64,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";
+
+//__Additional Requirements__
+
+//_MainTex in Unity is hardcoded for Collider Bounds, Selection Bounds, Clipping Bounds and AI Inferencing
+
+//It should be disaggregated to allow for manual specification of a separate mesh for each of these purposes.
+//A Node-Graph is found in various node-editors. Only Vertex/Fragment stages are present as blocks in Shader Graph.
+//This was originally to keep it compatible with the Universal Pipeline on mobile, embedded, handheld and portable devices.
+
+//Manufacturer Proprietary Graphics Features should be passed through to the hardware from high-level libraries
+//They should not be compiled in as instance/device layers/extensions/modules, but as free user-plugins.
+
+//Operating Systems at the dynamic linking phase should make sure the requested pipeline is available
+//and if it is not it should come up with suitable workarounds or warn the user of the differences.
+
+//Alastair Cota @ 15:43 20/04/2023
+
+stage_list = 
+[
+    "VK_SHADER_STAGE_VERTEX_BIT", ////////
+    "VK_SHADER_STAGE_FIT_BIT",
+    "VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT", ////
+    "VK_SHADER_STAGE_TESSELLATION_PRIMITIVE_BIT", //
+    "VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT", ////
+    "VK_SHADER_STAGE_GEOMETRY_BIT", ////
+    "VK_SHADER_STAGE_FRAGMENT_BIT", ////////
+    "VK_SHADER_STAGE_COMPUTE_BIT", ////
+    "VK_SHADER_STAGE_TENSOR_BIT", //
+    "VK_SHADER_STAGE_RAYGEN_BIT_KHR", //
+    "VK_SHADER_STAGE_ANY_HIT_BIT_KHR",
+    "VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR",
+    "VK_SHADER_STAGE_MISS_BIT_KHR",
+    "VK_SHADER_STAGE_INTERSECTION_BIT_KHR",
+    "VK_SHADER_STAGE_CALLABLE_BIT_KHR",
+    "VK_SHADER_STAGE_TASK_BIT_EXT",
+    "VK_SHADER_STAGE_MESH_BIT_EXT", //<<==!!!
+    "VK_SHADER_STAGE_CLIPPING_BIT", //<<==!!!
+    "VK_SHADER_STAGE_COLLIDER_BIT", //<<==!!!
+    "VK_SHADER_STAGE_SELECTION_BOUNDS_BIT_EXT", //<<==!!!
+    "VK_SHADER_STAGE_SUBPASS_SHADING_BIT_HUAWEI",
+    "VK_SHADER_STAGE_CLUSTER_SHADING_BIT_HUAWEI",
+    "VK_SHADER_STAGE_RAYGEN_BIT_NV",
+    "VK_SHADER_STAGE_ANY_HIT_BIT_NV",
+    "VK_SHADER_STAGE_CLOSEST_HIT_BIT_NV",
+    "VK_SHADER_STAGE_MISS_BIT_NV",
+    "VK_SHADER_STAGE_INTERSECTION_BIT_NV",
+    "VK_SHADER_STAGE_CALLABLE_BIT_NV",
+    "VK_SHADER_STAGE_TASK_BIT_NV",
+    "VK_SHADER_STAGE_MESH_BIT_NV",
+    "VK_UNITY_SHADER_STAGE_VERTEX_BIT",
+    "VK_UNITY_SHADER_STAGE_FRAGMENT_BIT",
+    "VK_UNITY_SHADER_STAGE_GEOMETRY_BIT_EXT",
+    "VK_UNITY_SHADER_STAGE_COMPUTE_BIT_EXT",
+    "VK_UNITY_SHADER_STAGE_HULL_BIT_EXT",
+    "VK_UNITY_SHADER_STAGE_DOMAIN_BIT_EXT",
+    "VK_UNITY_SHADER_STAGE_TESSELLATION_BIT_EXT",
+    "VK_UNITY_SHADER_STAGE_SURFACE_BIT_EXT",
+    "VK_UNITY_SHADER_STAGE_SURFACE_VERTEX_BIT_EXT",
+    "VK_UNITY_SHADER_STAGE_SURFACE_LIGHTING_BIT_EXT",
+    "VK_UNITY_SHADER_STAGE_SURFACE_ATTENUATION_BIT_EXT",
+    "VK_UNITY_SHADER_STAGE_SURFACE_TESSELLATION_BIT_EXT",
+    "VK_UNITY_SHADER_STAGE_RAYCAST_BIT_EXT",
+    "VK_UNITY_SHADER_STAGE_NAVMESH_BIT_EXT",
+    "VK_UNITY_SHADER_STAGE_COLLIDER_BIT_EXT",
+    "VK_UNITY_SHADER_STAGE_LIGHTNG_BIT_EXT",
+    "VK_UNITY_SHADER_STAGE_TASK_BIT_EXT",
+    "VK_UNITY_SHADER_STAGE_DISPATCH_BIT_EXT",
+    "VK_UNITY_SHADER_STAGE_MESH_BIT_EXT",
+    "VK_SHADER_STAGE_ALL_GRAPHICS",
+    "VK_SHADER_STAGE_ALL",
+];
+
+drive_list =
+[
+    { id: "A1",  name: "Draw",                             x: 100, y:  100, value: 0.50, tag: "", },
+    { id: "A2",  name: "Input Assembler",                  x: 100, y:  200, value: 0.50, tag: "", },
+    { id: "A3",  name: "Vertex Shader",                    x: 100, y:  300, value: 0.50, tag: "VK_SHADER_STAGE_VERTEX_BIT", },
+    { id: "A4",  name: "Tessellation Control Shader",      x: 100, y:  400, value: 0.50, tag: "VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT", },
+    { id: "A5",  name: "Tessellation Primitive Generator", x: 100, y:  500, value: 0.50, tag: "", },
+    { id: "A6",  name: "Tessellation Evaluation Shader",   x: 100, y:  600, value: 0.50, tag: "VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT", },
+    { id: "A7",  name: "Geometry Shader",                  x: 100, y:  700, value: 0.50, tag: "VK_SHADER_STAGE_GEOMETRY_BIT", },
+    { id: "A8",  name: "Vertex Post-Processing",           x: 100, y:  800, value: 0.50, tag: "", },
+    { id: "A9",  name: "Rasterization",                    x: 100, y:  900, value: 0.50, tag: "", },
+    { id: "A10", name: "Early Per-Fragment Tests",         x: 100, y: 1000, value: 0.50, tag: "", },
+    { id: "A11", name: "Fragment Shader",                  x: 100, y: 1100, value: 0.50, tag: "VK_SHADER_STAGE_FRAGMENT_BIT", },
+    { id: "A12", name: "Late Per-Fragment Tests",          x: 100, y: 1200, value: 0.50, tag: "", },
+    { id: "A13", name: "Blending",                         x: 100, y: 1300, value: 0.50, tag: "", },
+
+    { id: "B1",  name: "Indirect Buffer",                  x: 400, y: 100,  value: 0.50, tag: "", },
+    { id: "B2",  name: "Index Buffer",                     x: 400, y: 200,  value: 0.50, tag: "", },
+    { id: "B3",  name: "Vertex Buffers",                   x: 400, y: 300,  value: 0.50, tag: "", },
+    { id: "B4",  name: "Uniform Buffers",                  x: 400, y: 400,  value: 0.50, tag: "", },
+    { id: "B5",  name: "Uniform Texel Buffers",            x: 400, y: 500,  value: 0.50, tag: "", },
+    { id: "B6",  name: "Sampled Images",                   x: 400, y: 600,  value: 0.50, tag: "", },
+    { id: "B7",  name: "Storage Buffers",                  x: 400, y: 700,  value: 0.50, tag: "", },
+    { id: "B8",  name: "Storage Texel Buffers",            x: 400, y: 800,  value: 0.50, tag: "", },
+    { id: "B9",  name: "Storage Images",                   x: 400, y: 900,  value: 0.50, tag: "", },
+    { id: "B10", name: "Push Constants",                   x: 400, y: 1000, value: 0.50, tag: "", },
+    { id: "B11", name: "Depth/Stencil Attachments",        x: 400, y: 1100, value: 0.50, tag: "", },
+    { id: "B12", name: "Input Attachments",                x: 400, y: 1200, value: 0.50, tag: "", },
+    { id: "B13", name: "Color Attachments",                x: 400, y: 1300, value: 0.50, tag: "", },
+
+    { id: "C1",  name: "Draw Mesh Tasks",                  x: 700, y: 100,  value: 0.50, tag: "", },
+    { id: "C2",  name: "Dispatch",                         x: 700, y: 200,  value: 0.50, tag: "", },
+    { id: "C3",  name: "Compute Shader",                   x: 700, y: 300,  value: 0.50, tag: "VK_SHADER_STAGE_COMPUTE_BIT", },
+    { id: "C4",  name: "Task Assembler",                   x: 700, y: 400,  value: 0.50, tag: "", },
+    { id: "C5",  name: "Task Shader",                      x: 700, y: 500,  value: 0.50, tag: "VK_SHADER_STAGE_TASK_BIT_EXT", },
+    { id: "C6",  name: "Mesh Assembler",                   x: 700, y: 600,  value: 0.50, tag: "", },
+    { id: "C7",  name: "Mesh Shader",                      x: 700, y: 700,  value: 0.50, tag: "VK_SHADER_STAGE_MESH_BIT_EXT", },
+];
+
+cable_list =
+[
+    { id1: "A1",  id2: "A2"  },
+    { id1: "A2",  id2: "A3"  },
+    { id1: "A3",  id2: "A4"  },
+    { id1: "A4",  id2: "A5"  },
+    { id1: "A5",  id2: "A6"  },
+    { id1: "A6",  id2: "A7"  },
+    { id1: "A7",  id2: "A8"  },
+    { id1: "A8",  id2: "A9"  },
+    { id1: "A9",  id2: "A10" },
+    { id1: "A10", id2: "A11" },
+    { id1: "A11", id2: "A12" },
+    { id1: "A12", id2: "A13" },
+
+    { id1: "A3",  id2: "A8"  },
+    { id1: "A6",  id2: "A8"  },
+    { id1: "A10", id2: "A12" },
+
+    { id1: "A1",  id2: "B1"  },
+    { id1: "A2",  id2: "B2"  },
+    { id1: "A2",  id2: "B3"  },
+
+    { id1: "A3",  id2: "B4"  },
+    { id1: "A3",  id2: "B5"  },
+    { id1: "A3",  id2: "B6"  },
+    { id1: "A3",  id2: "B7"  },
+    { id1: "A3",  id2: "B8"  },
+    { id1: "A3",  id2: "B9"  },
+    { id1: "A3",  id2: "B10" },
+
+    { id1: "A4",  id2: "B4"  },
+    { id1: "A4",  id2: "B5"  },
+    { id1: "A4",  id2: "B6"  },
+    { id1: "A4",  id2: "B7"  },
+    { id1: "A4",  id2: "B8"  },
+    { id1: "A4",  id2: "B9"  },
+    { id1: "A4",  id2: "B10" },
+
+    { id1: "A6",  id2: "B4"  },
+    { id1: "A6",  id2: "B5"  },
+    { id1: "A6",  id2: "B6"  },
+    { id1: "A6",  id2: "B7"  },
+    { id1: "A6",  id2: "B8"  },
+    { id1: "A6",  id2: "B9"  },
+    { id1: "A6",  id2: "B10" },
+
+    { id1: "A7",  id2: "B4"  },
+    { id1: "A7",  id2: "B5"  },
+    { id1: "A7",  id2: "B6"  },
+    { id1: "A7",  id2: "B7"  },
+    { id1: "A7",  id2: "B8"  },
+    { id1: "A7",  id2: "B9"  },
+    { id1: "A7",  id2: "B10" },
+
+    { id1: "A11", id2: "B4"  },
+    { id1: "A11", id2: "B5"  },
+    { id1: "A11", id2: "B6"  },
+    { id1: "A11", id2: "B7"  },
+    { id1: "A11", id2: "B8"  },
+    { id1: "A11", id2: "B9"  },
+    { id1: "A11", id2: "B10" },
+
+    { id1: "A10", id2: "B11" },
+    { id1: "A11", id2: "B12" },
+    { id1: "A13", id2: "B13" },
+
+    { id1: "B2",  id2: "B3"  },
+
+    { id1: "B4",  id2: "B5"  },
+    { id1: "B5",  id2: "B6"  },
+    { id1: "B6",  id2: "B7"  },
+    { id1: "B7",  id2: "B8"  },
+    { id1: "B8",  id2: "B9"  },
+    { id1: "B9",  id2: "B10" },
+
+    { id1: "B1",  id2: "C1"  },
+    { id1: "B1",  id2: "C2"  },
+
+    { id1: "B4",  id2: "C3"  },
+    { id1: "B4",  id2: "C5"  },
+    { id1: "B4",  id2: "C7"  },
+
+    { id1: "B5",  id2: "C3"  },
+    { id1: "B5",  id2: "C5"  },
+    { id1: "B5",  id2: "C7"  },
+
+    { id1: "B6",  id2: "C3"  },
+    { id1: "B6",  id2: "C5"  },
+    { id1: "B6",  id2: "C7"  },
+
+    { id1: "B7",  id2: "C3"  },
+    { id1: "B7",  id2: "C5"  },
+    { id1: "B7",  id2: "C7"  },
+
+    { id1: "B8",  id2: "C3"  },
+    { id1: "B8",  id2: "C5"  },
+    { id1: "B8",  id2: "C7"  },
+
+    { id1: "B9",  id2: "C3"  },
+    { id1: "B9",  id2: "C5"  },
+    { id1: "B9",  id2: "C7"  },
+
+    { id1: "B10", id2: "C3"  },
+    { id1: "B10", id2: "C5"  },
+    { id1: "B10", id2: "C7"  },
+
+    { id1: "C1",  id2: "C4"  },
+    { id1: "C1",  id2: "C6"  },
+    { id1: "C2",  id2: "C3"  },
+    { id1: "C4",  id2: "C5"  },
+    { id1: "C5",  id2: "C6"  },
+    { id1: "C6",  id2: "C7"  },
+
+    { id1: "C7",  id2: "A8"  },
+];
+
+window.onload = function()
+{
+    canvas = document.getElementsByTagName("canvas")[0];
+    ctx = canvas.getContext("2d");
+
+    content = document.getElementById("content");
+    header = document.getElementById("header");
+    footer = document.getElementById("footer");
+
+    content.onmousedown = ondragstart;
+    //canvas.onmousedown = function(event) { event.target = content; ondragstart(event); }
+    //document.body.onmousedown = function(event) { event.target = content; ondragstart(event); }
+
+    for (var i = 0; i < drive_list.length; ++i)
+    {
+        var div = document.createElement("div");
+        div.className = "stage";
+        div.id = drive_list[i].id;
+        div.name = drive_list[i].name;
+        div.style.left = drive_list[i].x + "px";
+        div.style.top = drive_list[i].y + "px";
+        div.onmousedown = ondragstart;
+
+        var img = document.createElement("img");
+        img.src = div_img; img.alt = "";
+        div.appendChild(img);
+
+        var bar = document.createElement("progress");
+        bar.style.width = "100%";
+        bar.style.accentColor = "#FF0033FF";
+        bar.style.position = "absolute";
+        bar.value = drive_list[i].value;
+        bar.style.top = "27px";
+        bar.style.left = "0px";
+        div.appendChild(bar);
+
+        var map = document.createElement("p");
+        map.innerText = drive_list[i].name;
+        map.style.position = "absolute";
+        map.style.textAlign = "center";
+        map.style.color = "#FFFFFFFF";
+        map.style.fontSize = "12pt";
+        map.style.top = "42px";
+        div.appendChild(map);
+
+        var tag = document.createElement("p");
+        tag.innerText = drive_list[i].tag;
+        tag.style.position = "absolute";
+        tag.style.textAlign = "center";
+        tag.style.color = "#FFAAAAFF";
+        tag.style.fontSize = "12pt";
+        tag.style.top = "60px";
+        div.appendChild(tag);
+
+        //if (tag.innerText != "") { footer.innerHTML += "<h2>" + tag.innerText + "</h2>\n"; }
+
+        content.appendChild(div);
+    }
+
+    for (var i = 0; i < stage_list.length; ++i) { footer.innerHTML += "<h2>" + stage_list[i] + "</h2>\n"; }
+
+    var spc = document.createElement("p");
+    spc.style.position = "absolute";
+    spc.style.top = max_height + "px";
+    spc.style.left = 0;
+    spc.innerText = "_";
+    content.appendChild(spc);
+
+    window.onresize();
+    setInterval(render, 0);
+}
+
+window.onresize = function()
+{
+    var style = window.getComputedStyle(canvas);
+    w = canvas.width = parseFloat(style.width) * render_scale;
+    h = canvas.height = parseFloat(style.height) * render_scale;
+    p = (render_scale - 1.0) * 50;
+    canvas.style.transform = "translate(" + p + "%, " + p + "%) scale(" + render_scale + ")";
+}
+
+ondragstart = function(event)
+{
+    event.preventDefault();
+    pos3 = event.clientX;
+    pos4 = event.clientY;
+    drag_element = event.target;
+    document.onmousemove = ondragmove;
+    document.onmouseup = ondragstop;
+}
+
+ondragmove = function(event)
+{
+    event.preventDefault();
+    pos1 = pos3 - event.clientX;
+    pos2 = pos4 - event.clientY;
+    pos3 = event.clientX;
+    pos4 = event.clientY;
+    drag_element.style.left = (drag_element.offsetLeft - pos1) + "px";
+    drag_element.style.top = (drag_element.offsetTop - pos2) + "px";
+}
+
+ondragstop = function()
+{
+    document.onmousemove = null;
+    document.onmouseup = null;
+}
+
+point = function(element, mode)
+{
+    var rect = element.getBoundingClientRect();
+    if (mode == 1) { return { x: rect.right + 5, y: rect.top + 10 }; }
+    else if (mode == 2) { return { x: rect.left - 5, y: rect.top + 10 }; }
+    else { return rect; }
+}
+
+interpolate = function(pos, cx, cy) { return { x: pos.x + cx, y: pos.y + cy }; }
+
+render = function()
+{
+    ctx.fillStyle = "#000000FF";
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.strokeStyle = "#FF0040FF";
+    ctx.shadowColor = ctx.strokeStyle;
+    ctx.shadowBlur = line_blur;
+    ctx.lineWidth = line_width;
+    ctx.lineCap = "round";
+
+    canvas.style.filter = "blur(" + render_blur + "px)";
+
+    for (var i = 0; i < cable_list.length; ++i)
+    {
+        var pt1 = point(document.getElementById(cable_list[i].id1), 1);
+        var pt2 = point(document.getElementById(cable_list[i].id2), 2);
+        var pta = interpolate(pt1,  50, 0);
+        var ptb = interpolate(pt2, -50, 0);
+
+        ctx.beginPath();
+        ctx.moveTo(pt1.x, pt1.y);
+        ctx.bezierCurveTo(pta.x, pta.y, ptb.x, ptb.y, pt2.x, pt2.y);
+        ctx.stroke();
+    }
+}
+</script>
+<style>
+    * { box-sizing: border-box; margin: auto; font-family: Orbitron, Helvetica, sans-serif; user-select: none; white-space: nowrap; }
+    body { background: black; color: #FF0033FF; overflow: hidden; }
+    canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; image-rendering: pixelated; }
+    #content { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; }
+    #header { position: fixed; resize: none; background: #000000AF; width: 100%; height: 10vh; padding-top: 30px; padding-bottom: 30px; text-align: center; z-index: 9999; border-bottom: thin gray solid; }
+    #footer { position: fixed; resize: none; background: #000000AF; width: 100%; height: 10vh; padding-top: 30px; padding-bottom: 30px; text-align: center; z-index: 9999; border-top: thin gray solid; bottom: 0; text-align: left; padding-left: 5vw; overflow-y: scroll; }
+    .stage { position: absolute; width: content; height: content; text-align: text-top; }
+    .stage > * { pointer-events: none; }
+</style>
+<canvas></canvas>
+<div id="content"></div>
+<div id="header"><h1>VULKAN GRAPHICS PIPELINE</h1></div>
+<div id="footer"></div>
